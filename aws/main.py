@@ -1,7 +1,7 @@
 from os import getcwd
 
 from aws_cdk import Stack, App, Duration
-from aws_cdk.aws_ec2 import SubnetSelection, SubnetType
+from aws_cdk.aws_ec2 import SubnetSelection, SubnetType, Vpc
 from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_events import Schedule, Rule
 from aws_cdk.aws_events_targets import LambdaFunction
@@ -9,17 +9,22 @@ from aws_cdk.aws_lambda import DockerImageFunction, DockerImageCode, Architectur
 from aws_cdk.aws_secretsmanager import Secret
 from constructs import Construct
 
+
 class Hackersky(Stack):
     def __init__(self, scope: Construct):
         super().__init__(scope, 'Hackersky',
-                         description='A Bluesky bot that posts trending news.ycombinator.com articles')
+                         description='A Bluesky bot that posts trending news.ycombinator.com articles',
+                         env={
+                             'account': '388646735826',
+                             'region': 'us-east-1'
+                         })
 
         secret = Secret(self, 'Secret')
 
         function = DockerImageFunction(
             self,
             'Function',
-            memory_size=128,
+            memory_size=256,
             code=DockerImageCode.from_image_asset(
                 directory=getcwd(),
                 platform=Platform.LINUX_ARM64,
@@ -27,10 +32,10 @@ class Hackersky(Stack):
             ),
             architecture=Architecture.ARM_64,
             environment={
-                'SECRET_ARN': secret.secret_arn,
-                'NAME': 'Alice'
+                'SECRET_ARN': secret.secret_arn
             },
-            timeout=Duration.minutes(15),
+            timeout=Duration.seconds(15),
+            vpc=Vpc.from_lookup(self, 'Vpc', vpc_name='Commons/Vpc'),
             vpc_subnets=SubnetSelection(subnet_type=SubnetType.PRIVATE_WITH_EGRESS)
         )
 
