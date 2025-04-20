@@ -1,6 +1,7 @@
 from os import getcwd
 
 from aws_cdk import Stack, App, Duration
+from aws_cdk.aws_ec2 import SubnetSelection, SubnetType
 from aws_cdk.aws_ecr_assets import Platform
 from aws_cdk.aws_events import Schedule, Rule
 from aws_cdk.aws_events_targets import LambdaFunction
@@ -29,7 +30,8 @@ class Hackersky(Stack):
                 'SECRET_ARN': secret.secret_arn,
                 'NAME': 'Alice'
             },
-            timeout=Duration.minutes(15)
+            timeout=Duration.minutes(15),
+            vpc_subnets=SubnetSelection(subnet_type=SubnetType.PRIVATE_WITH_EGRESS)
         )
 
         secret.grant_read(function)
