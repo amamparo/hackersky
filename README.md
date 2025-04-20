@@ -1,4 +1,6 @@
-# python-template
+# hackersky
+
+A Bluesky bot that posts trending news.ycombinator.com articles
 
 ## Requirements
 * Python 3.13
