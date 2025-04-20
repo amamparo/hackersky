@@ -1,23 +1,29 @@
 import json
 from os import environ
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 import boto3
 from dotenv import load_dotenv
-from injector import inject, singleton
+from injector import singleton
 
 load_dotenv()
 
 
 @singleton
 class Environment:
-    @inject
-    def __init__(self) -> None:
-        secret_arn = environ.get('SECRET_ARN')
-        self.__secret_environment: Dict[str, str] = self.__import_from(secret_arn) if secret_arn else {}
+    __secret: Optional[Dict[str, Any]] = None
 
-    def get(self, name: str) -> Optional[str]:
-        return self.__secret_environment.get(name, environ.get(name))
+    def get_str(self, name: str) -> Optional[str]:
+        value = self.__get(name)
+        if isinstance(value, str):
+            return value
+        raise TypeError(f'Expected a string value, got {type(value).__name__}')
+
+    def __get(self, name: str) -> Optional[Any]:
+        if self.__secret is None:
+            secret_arn = environ.get('SECRET_ARN')
+            self.__secret = self.__import_from(secret_arn) if secret_arn else {}
+        return self.__secret.get(name, environ.get(name))
 
     @staticmethod
     def __import_from(secret_arn: str) -> Dict[str, str]:

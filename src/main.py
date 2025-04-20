@@ -49,9 +49,9 @@ class HackerNewsPost:
 
 @inject
 def main(environment: Environment) -> None:
-    bsky_handle = environment.get('BSKY_HANDLE')
+    bsky_handle = environment.get_str('BSKY_HANDLE')
     bsky = Client()
-    bsky.login(bsky_handle, environment.get('BSKY_PASSWORD'))
+    bsky.login(bsky_handle, environment.get_str('BSKY_PASSWORD'))
 
     latest_bsky_posts = bsky.get_author_feed(actor=bsky_handle, limit=100)['feed']
     already_posted_urls = [post.post.embed.external.uri for post in latest_bsky_posts]
