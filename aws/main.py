@@ -35,7 +35,7 @@ class Hackersky(Stack):
                 'SECRET_ARN': secret.secret_arn
             },
             timeout=Duration.seconds(15),
-            vpc=Vpc.from_lookup(self, 'Vpc', vpc_name='Commons/Vpc'),
+            vpc=Vpc.from_lookup(self, 'Vpc', region=self.region),
             vpc_subnets=SubnetSelection(subnet_type=SubnetType.PRIVATE_WITH_EGRESS)
         )
 
